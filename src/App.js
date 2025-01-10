@@ -1,62 +1,81 @@
-import { React, useState, ErrorBoundary } from "react";
+import { React, useState } from "react";
+import Select from "react-select";
 import "./styles.css";
 
 export default function App() {
   const limit = 4;
-  const colors = ["red", "blue", "green", "yellow"];
-  const [tooManyColors, setTooManyColors] = useState(colors.length <= limit);
-  const win = [];
-  let combos = [];
+  const [colors, setColors] = useState(["green", "purple", "orange"]);
+  const [reset, setReset] = useState();
+  const [feedback, setFeedback] = useState("Pick a card!");
+  const [cards, setCards] = useState(getPermutations(colors, colors.length));
   // Winner
-  colors.map((color) => {
-    win.push(colors[Math.floor(Math.random() * colors.length)]);
-  });
+  const [win, setWin] = useState(pickWinner(colors));
 
-  // 5 or more is too many for the browser to handle
-  if (tooManyColors) {
-    combos = getPermutations(colors, colors.length);
-  }
   return (
     <>
-      <Header
+      <GamePlay
+        setFeedback={setFeedback}
         win={win}
-        combos={combos}
-        tooManyColors={tooManyColors}
-        limit={limit}
+        setReset={setReset}
+        feedback={feedback}
+        cards={cards}
       />
     </>
   );
 }
 
-function Header({ win, combos, tooManyColors, limit }) {
-  const [feedback, setFeedback] = useState(
-    tooManyColors
-      ? "Find the matching card!"
-      : `${win.length} values renders too many colors combinations. Please use ${limit} or less.`
-  );
+function pickWinner(colors){
+  let winner = [];
+  colors.map((color) => {
+    winner.push(colors[Math.floor(Math.random() * colors.length)]);
+  });
+  return winner;
+}
+
+function GamePlay({ feedback, setFeedback, cards, win, setReset }) {
   return (
     <>
-      <div className="header">
-        <Card key={win.flat().toString()} colors={win} />
-        {console.log(`${combos.length} combinations`)}
-        <br />
-        {feedback}
-      </div>
-      <Board cards={combos} win={win} setFeedback={setFeedback} />
+      <Header win={win} cards={cards} feedback={feedback} />
+      <Board
+        cards={cards}
+        win={win}
+        setReset={setReset}
+        setFeedback={setFeedback}
+        feedback={feedback}
+      />
     </>
   );
 }
 
-function Board({ cards, win, setFeedback }) {
+function Header({ win, cards, feedback }) {
+  return (
+    <>
+      <div className="header">
+        <Card key={win.flat().toString()} colors={win} />
+        <br />
+        {feedback}
+      </div>
+    </>
+  );
+}
+
+function Board({ cards, win, setFeedback, setReset, feedback }) {
   function findWinner(e) {
-    let errs = Array("Try again!", "Not a match", "Nope", "Keep trying",'Almost there!','Not quite!','Not this time');
+    let errs = Array(
+      "Try again!",
+      "Not a match",
+      "Nope",
+      "Keep trying",
+      "Almost there!",
+      "Not quite!",
+      "Not this time"
+    );
     let code = e.currentTarget.getAttribute("code");
     if (win.toString() === code) {
       setFeedback("You win!");
+      setReset(false);
     } else {
-      setFeedback(
-        `${errs[Math.floor(Math.random() * errs.length)]}`
-      );
+      setFeedback(`${errs[Math.floor(Math.random() * errs.length)]}`);
     }
   }
 
@@ -108,31 +127,44 @@ function Card({ colors, findWinner }) {
   );
 }
 
-function* permute(permutation) {
-  var length = permutation.length,
-    c = Array(length).fill(0),
-    i = 1,
-    k,
-    p;
+function SelectColorsForm(limit, colors, setColors, setReset) {
+  let colorOptions = [
+    ["red", "blue", "yellow"],
+    ["green", "purple", "orange"],
+    ["pink", "black", "white"],
+  ];
+  let options = [];
+  colorOptions.map((set, key) => {
+    set.map((color, k) => {
+      options[key] += `<span style="background-color:${color}">${color}</span>`;
+    });
+  });
 
-  yield permutation.slice();
-  while (i < length) {
-    if (c[i] < i) {
-      k = i % 2 && c[i];
-      p = permutation[i];
-      permutation[i] = permutation[k];
-      //     yield permutation.slice(); // Dupes?
-      permutation[k] = p;
-      ++c[i];
-      i = 1;
-      yield permutation.slice();
-    } else {
-      c[i] = 0;
-      ++i;
-    }
+  function handleSubmit(formData) {
+    console.log(formData.getAll("colors"));
+    setColors(formData.getAll("colors"));
+    setReset(true);
   }
+
+  return (
+    <>
+      {options.map((set, i) => {
+        return set;
+      })}
+      <button type="submit" onSubmit={handleSubmit}>
+        Submit
+      </button>
+      {feedback}
+    </>
+  );
 }
 
+/**
+ * Stackoverflow FTW https://stackoverflow.com/a/23306461/2208318
+ * @param {Array} list
+ * @param {Integer} maxLen
+ * @returns
+ */
 function getPermutations(list, maxLen) {
   // Copy initial values as arrays
   var perm = list.map(function (val) {
