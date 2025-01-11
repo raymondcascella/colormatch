@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/colormatch/static/css/main.eb770cdc.css",
+    "main.js": "/colormatch/static/js/main.91652fef.js",
+    "index.html": "/colormatch/index.html",
+    "main.eb770cdc.css.map": "/colormatch/static/css/main.eb770cdc.css.map",
+    "main.91652fef.js.map": "/colormatch/static/js/main.91652fef.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.eb770cdc.css",
+    "static/js/main.91652fef.js"
+  ]
+}
