@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "A matching demo",
   "license": "ISC",
-  "author": "",
+  "author": "Raymond Cascella",
+  "homepage": "https://raymondcascella.github.io/colormatch",
   "main": "src/index.js",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "^5.0.1",
