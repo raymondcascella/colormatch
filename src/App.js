@@ -16,15 +16,17 @@ export default function App() {
       <GamePlay
         setFeedback={setFeedback}
         win={win}
+        setWin={setWin}
         setReset={setReset}
         feedback={feedback}
         cards={cards}
+        colors={colors}
       />
     </>
   );
 }
 
-function pickWinner(colors){
+function pickWinner(colors) {
   let winner = [];
   colors.map((color) => {
     winner.push(colors[Math.floor(Math.random() * colors.length)]);
@@ -32,7 +34,15 @@ function pickWinner(colors){
   return winner;
 }
 
-function GamePlay({ feedback, setFeedback, cards, win, setReset }) {
+function GamePlay({
+  feedback,
+  setFeedback,
+  cards,
+  win,
+  setWin,
+  setReset,
+  colors,
+}) {
   return (
     <>
       <Header win={win} cards={cards} feedback={feedback} />
@@ -42,6 +52,8 @@ function GamePlay({ feedback, setFeedback, cards, win, setReset }) {
         setReset={setReset}
         setFeedback={setFeedback}
         feedback={feedback}
+        setWin={setWin}
+        colors={colors}
       />
     </>
   );
@@ -59,7 +71,15 @@ function Header({ win, cards, feedback }) {
   );
 }
 
-function Board({ cards, win, setFeedback, setReset, feedback }) {
+function Board({
+  cards,
+  win,
+  setFeedback,
+  setReset,
+  feedback,
+  colors,
+  setWin,
+}) {
   function findWinner(e) {
     let errs = Array(
       "Try again!",
@@ -73,7 +93,7 @@ function Board({ cards, win, setFeedback, setReset, feedback }) {
     let code = e.currentTarget.getAttribute("code");
     if (win.toString() === code) {
       setFeedback("You win!");
-      setReset(false);
+      setWin(pickWinner(colors));
     } else {
       setFeedback(`${errs[Math.floor(Math.random() * errs.length)]}`);
     }
